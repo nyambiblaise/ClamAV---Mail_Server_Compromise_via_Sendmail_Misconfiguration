@@ -123,7 +123,8 @@ From the result, we identified the following:
 
 1. Running the bind shell using **`nc 192.168.218.42 31337`**, we were able to have immediate root access confirming the exploit was successful.
 
-![image.png](image%2016.png)
+<img width="1347" height="280" alt="image 16" src="https://github.com/user-attachments/assets/f601f481-f43d-464b-b7e0-2e783c23efbf" />
+
 
 ### **`Recommendations`**
 
