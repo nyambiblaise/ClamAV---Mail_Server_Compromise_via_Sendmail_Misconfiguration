@@ -17,24 +17,28 @@ This level of compromise represents a complete system takeover, enabling attacke
 ### **`Reconnaisance & Enumeration`**
 
 We perform an nmap port scap and identified ports 22, 25, 80, 139, 199 and 445 open. 
+<img width="1165" height="247" alt="image" src="https://github.com/user-attachments/assets/d8ef8f7a-ba96-4c96-af58-78406e414ab5" />
 
-![image.png](image.png)
 
 We then performed a service version scan (`nmap -sV 192.168.218.42 -p 22,25,80,139,199,445`) and discovered that the target is running OpenSSH3.8, Sendmail 8.13 and an apache web server.
 
-![image.png](image%201.png)
+<img width="1333" height="271" alt="image 1" src="https://github.com/user-attachments/assets/717ffec1-ad8e-4bc3-86f6-2e611ee4b23f" />
+
 
 We did a curl to the server and found a binary code which when decoded yields to `ifyoudontpwnmeuran00b` which we will keep and **may** need in future.
 
-![image.png](image%202.png)
+<img width="1376" height="273" alt="image 2" src="https://github.com/user-attachments/assets/1642af09-2539-41a6-b1ad-042c5be8ad57" />
+
 
 We performed an agressive scan on port 25 (`nmap -sV -A 192.168.218.42 -p 25`) and confirmed that it is running `sendmail v8.13` and the server is propably Linux.
 
-![image.png](image%203.png)
+<img width="1378" height="595" alt="image 3" src="https://github.com/user-attachments/assets/fe5b8f15-6ebe-4754-9e67-1711cde6dde8" />
+
 
 Using netcat in verbose mode(`nc -vv 192.168.218.42 25`), we confirmed that the service running on port 25 is using ESMTP Sendmail
 
-![image.png](image%204.png)
+<img width="1372" height="127" alt="image 4" src="https://github.com/user-attachments/assets/61f4de56-b3aa-463b-9a87-e237ab3cc9af" />
+
 
 Since we also identified port 199 running a SNMP, we performed an SNMP Check on the port using `snmp-check 192.168.218.42` and discovered that `clamav-milter` is running with **Sendmail** in `black-hole-mode`. 
 
@@ -45,21 +49,26 @@ Our Understanding of what we have discovered so far:
 3. Milter stands for **Mail Filter** that inspects SMTP transactions as they happen. It can accept, reject, quarantine, or discard messages.
 4. Black-hole-mode means silently discarded without the sender notified.
 
-![image.png](image%205.png)
+<img width="1364" height="337" alt="image 5" src="https://github.com/user-attachments/assets/51a9fcee-b535-4869-83fe-14a34278ab9e" />
 
-![image.png](image%206.png)
+
+<img width="1356" height="102" alt="image 6" src="https://github.com/user-attachments/assets/c1f725dd-12ba-4993-85d0-b3a7d9ccf0f9" />
+
 
 Alternately, we can continue searching for vulnenrabilities for other discovered services such as SMB, using **Searchsploit and** OSINT, we were able to find an exploit that matches Sendmail and ClamAV with milter running in black-hole-mode.
 
 We found a Remote Code Execution vulnerability ([https://www.exploit-db.com/exploits/4761](https://www.exploit-db.com/exploits/4761)) that exploits Sendmail with clamav-milter vulnerabilities.
 
-![image.png](image%207.png)
+<img width="1425" height="1065" alt="image 7" src="https://github.com/user-attachments/assets/a9ab35d3-f19e-4591-adcd-eb27e873a926" />
+
 
 Searching on **`Searchsploit` using either commands (`searchsploit sendmail`** or `searchsploit clamav`**),** we found the same vulnerability mapping to a perl file.
 
-![image.png](image%208.png)
+<img width="1338" height="303" alt="image 8" src="https://github.com/user-attachments/assets/db28df2e-8945-4c8a-bcc0-d3e146a9d054" />
 
-![image.png](image%209.png)
+
+<img width="1362" height="853" alt="image 9" src="https://github.com/user-attachments/assets/0de97099-a607-4f4c-ab65-dd212666ee84" />
+
 
 At this stage, we have found a vulnerability and an exploit for that vulnerability, we will be moving to the next phase of our attack.
 
@@ -69,11 +78,13 @@ We confirmed that both **wget** and **searchsploit** are mapping to the same fil
 
 Searchsploit: `searchsploit clamav && searchsploit -m multiple/remote/4761.pl`. Here, we mirror the file from the **Exploit-DB** and save it in the current working directory with the name **4761.pl**
 
-![image.png](image%2010.png)
+<img width="1346" height="459" alt="image 10" src="https://github.com/user-attachments/assets/e65df66e-da8f-4039-a6a7-8957aa236037" />
+
 
 Using **wget (`wget http://exploit-db/download/4761 -O exploit.pl`)**, we download the other exploit 
 
-![image.png](image%2011.png)
+<img width="1361" height="639" alt="image 11" src="https://github.com/user-attachments/assets/1b6c4881-e7f3-47cf-8843-d3e65ccac8b8" />
+
 
 Comparing both files using **`diff -y 4761.pl exploit.pl`,** we confirmed that both exploits are the same, so we will proceed with any of them.
 
