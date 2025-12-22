@@ -88,7 +88,8 @@ Using **wget (`wget http://exploit-db/download/4761 -O exploit.pl`)**, we downlo
 
 Comparing both files using **`diff -y 4761.pl exploit.pl`,** we confirmed that both exploits are the same, so we will proceed with any of them.
 
-![image.png](image%2012.png)
+<img width="1346" height="609" alt="image 12" src="https://github.com/user-attachments/assets/b8df7756-6d48-4032-9991-5f673293b556" />
+
 
 We execute the exploit using **`perl exploit.pl`,** but it requests a host to connect to. Looking at the code, using Static Source Code Analysis, we identified that there is a line saying that **`if ($#ARG[0]!=0)`**, the exploit returns the above-seen message. 
 
@@ -96,7 +97,8 @@ visibly, there are 2 ways we could solve this:
 
 1. Creating a variable $ARGV[0] and assigning it our target IP: **`$ARGV[0]="192.168.218.42";`**the code now becomes:
     
-    ![image.png](image%2013.png)
+  <img width="1368" height="339" alt="image 13" src="https://github.com/user-attachments/assets/5fabdc4f-af25-4d9e-ba9c-b49f0196ccef" />
+
     
 2. We pass the target as parameter directly after executing the file: **`perl exploit.pl 192.168.218.42.`**
 
@@ -106,7 +108,8 @@ Both methods will definitely yield the same result. This was tested and confirme
 
 After executing the payload, we got this:
 
-![image.png](image%2014.png)
+<img width="1489" height="488" alt="image 14" src="https://github.com/user-attachments/assets/f0d59248-ccba-4e52-8e7d-168c72a3b7a0" />
+
 
 From the result, we identified the following:
 
@@ -115,7 +118,8 @@ From the result, we identified the following:
 3. We see a typical **bind shell** and a port 31337. The shell writes **`/bin/sh -i`** which is an interactive root shell to **`/etc/inetd.conf`** using **`root`** and restarted the service. **THIS IS GOLDEN !!!!!**.
 4. We checked with nmap again and confirmed that a new service now appears running on port 31337 which was not there on our previous scan. this shows that there is propably a chance that root execution has occured and the best way to check will be to connect to the port using netcat.
 
-![image.png](image%2015.png)
+<img width="1389" height="277" alt="image 15" src="https://github.com/user-attachments/assets/687a15ad-cbeb-47e9-8a13-f0ab2cbd7b12" />
+
 
 1. Running the bind shell using **`nc 192.168.218.42 31337`**, we were able to have immediate root access confirming the exploit was successful.
 
