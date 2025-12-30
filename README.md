@@ -1,4 +1,4 @@
-# Complete Mail Server Compromise via Sendmail Misconfiguration
+# ClamAV - Mail_Server_Compromise_via_Sendmail_Misconfiguration
 
 Target IP: 192.168.218.42
 
